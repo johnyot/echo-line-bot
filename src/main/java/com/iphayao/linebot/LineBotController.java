@@ -47,15 +47,19 @@ public class LineBotController {
 
     @EventMapping
     public void handleTextMessage(MessageEvent<TextMessageContent> event) {
+    	log.info("-----------------handleTextMessage-----------------------");
         log.info(event.toString());
         TextMessageContent message = event.getMessage();
+    	log.info("message ["+message.getText()+"]");
         handleTextContent(event.getReplyToken(), event, message);
     }
 
     @EventMapping
     public void handleStickerMessage(MessageEvent<StickerMessageContent> event) {
         log.info(event.toString());
+        log.info("-----------------handleStickerMessage-----------------------");
         StickerMessageContent message = event.getMessage();
+        log.info("sticker ["+message.getId()+"]");
         reply(event.getReplyToken(), new StickerMessage(
                 message.getPackageId(), message.getStickerId()
         ));
