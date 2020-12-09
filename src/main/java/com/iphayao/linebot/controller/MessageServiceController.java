@@ -25,7 +25,7 @@ public class MessageServiceController {
 	public BotApiResponse pushMessage(@RequestBody MessageReq messageReq) {
 		
 		final LineMessagingClient client = LineMessagingClient
-		        .builder(chToken)
+		        .builder(messageReq.getChannelToken())
 		        .build();
 
 		final TextMessage textMessage = new TextMessage(messageReq.getMessage());

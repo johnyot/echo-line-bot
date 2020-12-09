@@ -1,6 +1,7 @@
 package com.iphayao.linebot.model;
 
 public class MessageReq {
+	private String channelToken;
 	private String userId;
 	private String message;
 
@@ -18,5 +19,13 @@ public class MessageReq {
 
 	public void setMessage(String message) {
 		this.message = message;
+	}
+
+	public String getChannelToken() {
+		return channelToken;
+	}
+
+	public void setChannelToken(String channelToken) {
+		this.channelToken = channelToken;
 	}
 }
