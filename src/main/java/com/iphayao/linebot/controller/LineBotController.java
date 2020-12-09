@@ -1,6 +1,7 @@
-package com.iphayao.linebot;
+package com.iphayao.linebot.controller;
 
 import com.google.common.io.ByteStreams;
+import com.iphayao.linebot.Application;
 import com.linecorp.bot.client.LineMessagingClient;
 import com.linecorp.bot.client.MessageContentResponse;
 import com.linecorp.bot.model.ReplyMessage;
