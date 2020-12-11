@@ -1,25 +1,27 @@
 package com.iphayao.linebot.controller;
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.ResponseEntity;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.iphayao.linebot.model.MessageReq;
-import com.iphayao.linebot.model.MessageResp;
 import com.linecorp.bot.client.LineMessagingClient;
 import com.linecorp.bot.model.PushMessage;
 import com.linecorp.bot.model.message.TextMessage;
 import com.linecorp.bot.model.response.BotApiResponse;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @RestController
 @RequestMapping(value = "/v1")
 public class MessageServiceController {
 
-	@Value("${line.bot.channel-token}")
-	private String chToken;
+	static Logger log = LoggerFactory.getLogger(MessageServiceController.class.getName());
 	
 	@PostMapping(value="/postmsg", consumes = "application/json", produces = "application/json")
 	public BotApiResponse pushMessage(@RequestBody MessageReq messageReq) {
@@ -39,7 +41,7 @@ public class MessageServiceController {
 		    return null;
 		}
 
-		System.out.println(botApiResponse);
+		log.info(ToStringBuilder.reflectionToString(botApiResponse));
 		
 		return botApiResponse;
 	}
