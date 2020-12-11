@@ -1,7 +1,7 @@
 package com.iphayao.linebot.controller;
 
-import com.google.common.io.ByteStreams;
 import com.iphayao.linebot.Application;
+import com.linecorp.bot.client.LineBlobClient;
 import com.linecorp.bot.client.LineMessagingClient;
 import com.linecorp.bot.client.MessageContentResponse;
 import com.linecorp.bot.model.ReplyMessage;
@@ -28,6 +28,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UncheckedIOException;
+import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
@@ -37,6 +38,8 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
+import com.google.common.io.ByteStreams;
+
 @Slf4j
 @LineMessageHandler
 public class LineBotController {
@@ -45,6 +48,8 @@ public class LineBotController {
 	
     @Autowired
     private LineMessagingClient lineMessagingClient;
+    @Autowired
+    private LineBlobClient lineBlobClient;
 
     @EventMapping
     public void handleTextMessage(MessageEvent<TextMessageContent> event) {
@@ -85,7 +90,8 @@ public class LineBotController {
         String replyToken = event.getReplyToken();
 
         try {
-            MessageContentResponse response = lineMessagingClient.getMessageContent(content.getId()).get();
+            MessageContentResponse response = lineBlobClient.getMessageContent(content.getId())
+                    .get();
             DownloadedContent jpg = saveContent("jpg", response);
             DownloadedContent previewImage = createTempFile("jpg");
 
@@ -93,7 +99,7 @@ public class LineBotController {
                     jpg.path.toString(),
                     previewImage.path.toString());
 
-            reply(replyToken, new ImageMessage(jpg.uri, previewImage.uri));
+            reply(replyToken, new ImageMessage(URI.create(jpg.uri), URI.create(previewImage.uri)));
 
         } catch (InterruptedException | ExecutionException e) {
             reply(replyToken, new TextMessage("Cannot get image: " + content));
@@ -177,12 +183,13 @@ public class LineBotController {
         }
     }
 
-    private static DownloadedContent saveContent(String ext, MessageContentResponse response) {
-        log.info("Content-type: {}", response);
+    private static DownloadedContent saveContent(String ext, MessageContentResponse responseBody) {
+        log.info("Got content-type: {}", responseBody);
+
         DownloadedContent tempFile = createTempFile(ext);
         try (OutputStream outputStream = Files.newOutputStream(tempFile.path)) {
-            ByteStreams.copy(response.getStream(), outputStream);
-            log.info("Save {}: {}", ext, tempFile);
+            ByteStreams.copy(responseBody.getStream(), outputStream);
+            log.info("Saved {}: {}", ext, tempFile);
             return tempFile;
         } catch (IOException e) {
             throw new UncheckedIOException(e);
