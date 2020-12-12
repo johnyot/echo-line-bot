@@ -1,6 +1,9 @@
-package com.iphayao.linebot.controller;
+package com.ter.linebot.controller;
 
 import java.net.URI;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -15,19 +18,23 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import com.iphayao.linebot.model.ActionTemplate;
-import com.iphayao.linebot.model.MessageReq;
-import com.iphayao.linebot.model.MessageTemplateReq;
 import com.linecorp.bot.client.LineMessagingClient;
 import com.linecorp.bot.model.PushMessage;
 import com.linecorp.bot.model.action.Action;
+import com.linecorp.bot.model.action.DatetimePickerAction;
 import com.linecorp.bot.model.action.MessageAction;
 import com.linecorp.bot.model.action.PostbackAction;
 import com.linecorp.bot.model.action.URIAction;
 import com.linecorp.bot.model.message.TemplateMessage;
 import com.linecorp.bot.model.message.TextMessage;
 import com.linecorp.bot.model.message.template.ButtonsTemplate;
+import com.linecorp.bot.model.message.template.CarouselColumn;
+import com.linecorp.bot.model.message.template.CarouselTemplate;
 import com.linecorp.bot.model.response.BotApiResponse;
+import com.ter.linebot.model.ActionTemplate;
+import com.ter.linebot.model.CustomCarouselTemplate;
+import com.ter.linebot.model.MessageReq;
+import com.ter.linebot.model.MessageTemplateReq;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -98,7 +105,7 @@ public class MessageServiceController {
 		return botApiResponse;
 	}
 	
-	@PostMapping(value="/postcard", consumes = "application/json", produces = "application/json")
+	@PostMapping(value="/post/image", consumes = "application/json", produces = "application/json")
 	public BotApiResponse pushButtonTemplate2(@RequestBody MessageReq messageReq) {
 		
 		List<ActionTemplate> actions = messageReq.getActions();
@@ -125,6 +132,41 @@ public class MessageServiceController {
 		
 		return botApiResponse;
 	}
+	
+	@PostMapping(value="/post/cards", consumes = "application/json", produces = "application/json")
+	public BotApiResponse pushCardCarouselTemplate(@RequestBody MessageReq messageReq) {
+		
+		List<CustomCarouselTemplate> customCarouselTemplates = messageReq.getCards();
+		List<CarouselColumn> carouseColumns = new ArrayList<>();
+		for (CustomCarouselTemplate customCarouselTemplate : customCarouselTemplates) {
+			List<Action> templateAction = getTemplateAction(customCarouselTemplate.getActions());
+			CarouselColumn carouseColumn = new CarouselColumn(
+					URI.create(customCarouselTemplate.getImageUrl()),
+					customCarouselTemplate.getTitle(),
+					customCarouselTemplate.getText(),
+					templateAction);
+			carouseColumns.add(carouseColumn);
+		}
+
+        CarouselTemplate carouselTemplate = new CarouselTemplate(carouseColumns);
+        
+        TemplateMessage templateMessage = new TemplateMessage("Button alt text", carouselTemplate);
+        final PushMessage pushMessage = new PushMessage(
+       		 messageReq.getUserId(),
+       	        templateMessage);
+        final LineMessagingClient client = LineMessagingClient
+		        .builder(messageReq.getChannelToken())
+		        .build();
+        final BotApiResponse botApiResponse;
+        try {
+		    botApiResponse = client.pushMessage(pushMessage).get();
+		} catch (Exception e) {
+		    e.printStackTrace();
+		    return null;
+		}
+		
+		return botApiResponse;
+    }
 	
 	private List<Action> getTemplateAction(List<ActionTemplate> actionsTemplate) {
 		List<Action> actions = new ArrayList<Action>();

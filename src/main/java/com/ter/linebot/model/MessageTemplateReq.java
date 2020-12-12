@@ -1,4 +1,4 @@
-package com.iphayao.linebot.model;
+package com.ter.linebot.model;
 
 public class MessageTemplateReq {
 	 private String type;

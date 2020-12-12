@@ -1,4 +1,4 @@
-package com.iphayao.linebot.model;
+package com.ter.linebot.model;
 
 import java.util.List;
 

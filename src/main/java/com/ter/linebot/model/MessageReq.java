@@ -1,4 +1,4 @@
-package com.iphayao.linebot.model;
+package com.ter.linebot.model;
 
 import java.util.List;
 
@@ -10,6 +10,7 @@ public class MessageReq {
 	private String cardText;
 	private String imageUrl;
 	private List<ActionTemplate> actions;
+	List<CustomCarouselTemplate> cards;
 
 	public String getUserId() {
 		return userId;
@@ -66,4 +67,15 @@ public class MessageReq {
 	public void setCardText(String cardText) {
 		this.cardText = cardText;
 	}
+
+	public List<CustomCarouselTemplate> getCards() {
+		return cards;
+	}
+
+	public void setCards(List<CustomCarouselTemplate> cards) {
+		this.cards = cards;
+	}
+
+	
+
 }

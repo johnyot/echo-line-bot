@@ -1,6 +1,5 @@
-package com.iphayao.linebot.controller;
+package com.ter.linebot.controller;
 
-import com.iphayao.linebot.Application;
 import com.linecorp.bot.client.LineBlobClient;
 import com.linecorp.bot.client.LineMessagingClient;
 import com.linecorp.bot.client.MessageContentResponse;
@@ -15,6 +14,7 @@ import com.linecorp.bot.model.message.*;
 import com.linecorp.bot.model.response.BotApiResponse;
 import com.linecorp.bot.spring.boot.annotation.EventMapping;
 import com.linecorp.bot.spring.boot.annotation.LineMessageHandler;
+import com.ter.linebot.Application;
 
 import lombok.NonNull;
 import lombok.Value;

@@ -1,4 +1,4 @@
-package com.iphayao.linebot;
+package com.ter.linebot;
 
 import lombok.extern.slf4j.Slf4j;
 

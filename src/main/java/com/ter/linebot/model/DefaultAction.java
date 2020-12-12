@@ -1,9 +1,8 @@
-package com.iphayao.linebot.model;
+package com.ter.linebot.model;
 
-public class ActionTemplate {
+public class DefaultAction {
 	private String type;
 	private String label;
-	private String data;
 	private String uri;
 	public String getType() {
 		return type;
@@ -16,12 +15,6 @@ public class ActionTemplate {
 	}
 	public void setLabel(String label) {
 		this.label = label;
-	}
-	public String getData() {
-		return data;
-	}
-	public void setData(String data) {
-		this.data = data;
 	}
 	public String getUri() {
 		return uri;

@@ -1,4 +1,4 @@
-package com.iphayao.linebot;
+package com.ter.linebot;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
