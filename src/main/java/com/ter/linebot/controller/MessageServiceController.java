@@ -1,12 +1,10 @@
 package com.ter.linebot.controller;
 
 import java.net.URI;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -21,21 +19,27 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import com.linecorp.bot.client.LineMessagingClient;
 import com.linecorp.bot.model.PushMessage;
 import com.linecorp.bot.model.action.Action;
-import com.linecorp.bot.model.action.DatetimePickerAction;
 import com.linecorp.bot.model.action.MessageAction;
 import com.linecorp.bot.model.action.PostbackAction;
 import com.linecorp.bot.model.action.URIAction;
+import com.linecorp.bot.model.message.ImagemapMessage;
+import com.linecorp.bot.model.message.Message;
 import com.linecorp.bot.model.message.TemplateMessage;
 import com.linecorp.bot.model.message.TextMessage;
+import com.linecorp.bot.model.message.imagemap.ImagemapArea;
+import com.linecorp.bot.model.message.imagemap.ImagemapBaseSize;
+import com.linecorp.bot.model.message.imagemap.MessageImagemapAction;
+import com.linecorp.bot.model.message.imagemap.URIImagemapAction;
 import com.linecorp.bot.model.message.template.ButtonsTemplate;
 import com.linecorp.bot.model.message.template.CarouselColumn;
 import com.linecorp.bot.model.message.template.CarouselTemplate;
+import com.linecorp.bot.model.message.template.ImageCarouselColumn;
+import com.linecorp.bot.model.message.template.ImageCarouselTemplate;
+import com.linecorp.bot.model.message.template.Template;
 import com.linecorp.bot.model.response.BotApiResponse;
 import com.ter.linebot.model.ActionTemplate;
 import com.ter.linebot.model.CustomCarouselTemplate;
 import com.ter.linebot.model.MessageReq;
-import com.ter.linebot.model.MessageTemplateReq;
-
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -45,30 +49,18 @@ public class MessageServiceController {
 
 	static Logger log = LoggerFactory.getLogger(MessageServiceController.class.getName());
 	
-	@PostMapping(value="/postmsg", consumes = "application/json", produces = "application/json")
-	public BotApiResponse pushMessage(@RequestBody MessageReq messageReq) {
+	@PostMapping(value="/post/msg", consumes = "application/json", produces = "application/json")
+	public BotApiResponse pushMessage(@RequestBody MessageReq messageReq) throws InterruptedException, ExecutionException {
 		
 		final LineMessagingClient client = LineMessagingClient
 		        .builder(messageReq.getChannelToken())
 		        .build();
 
 		final TextMessage textMessage = new TextMessage(messageReq.getMessage());
-		final PushMessage pushMessage = new PushMessage(messageReq.getUserId(),  textMessage);
-
-		final BotApiResponse botApiResponse;
-		try {
-		    botApiResponse = client.pushMessage(pushMessage).get();
-		} catch (Exception e) {
-		    e.printStackTrace();
-		    return null;
-		}
-
-		log.info(ToStringBuilder.reflectionToString(botApiResponse));
-		
-		return botApiResponse;
+        return pusheMessage( messageReq.getUserId(), messageReq.getChannelToken(), textMessage);
 	}
 	
-	@PostMapping(value="/posttemplate", consumes = "application/json", produces = "application/json")
+	@PostMapping(value="/post/template", consumes = "application/json", produces = "application/json")
 	public BotApiResponse pushButtonTemplate(@RequestBody MessageReq messageReq) {
 		
 		 URI imageUrl = URI.create("https://w5coaching.com/wp-content/uploads/2014/10/sales.jpg");
@@ -105,8 +97,8 @@ public class MessageServiceController {
 		return botApiResponse;
 	}
 	
-	@PostMapping(value="/post/image", consumes = "application/json", produces = "application/json")
-	public BotApiResponse pushButtonTemplate2(@RequestBody MessageReq messageReq) {
+	@PostMapping(value="/post/card", consumes = "application/json", produces = "application/json")
+	public BotApiResponse pushButtonTemplate2(@RequestBody MessageReq messageReq) throws InterruptedException, ExecutionException {
 		
 		List<ActionTemplate> actions = messageReq.getActions();
 		List<Action> templateAction = getTemplateAction(actions);
@@ -116,25 +108,11 @@ public class MessageServiceController {
         		 messageReq.getCardText(),
                  templateAction);
          TemplateMessage templateMessage = new TemplateMessage("Button alt text", buttonsTemplate);
-         final PushMessage pushMessage = new PushMessage(
-        		 messageReq.getUserId(),
-        	        templateMessage);
-         final LineMessagingClient client = LineMessagingClient
- 		        .builder(messageReq.getChannelToken())
- 		        .build();
-         final BotApiResponse botApiResponse;
-         try {
- 		    botApiResponse = client.pushMessage(pushMessage).get();
- 		} catch (Exception e) {
- 		    e.printStackTrace();
- 		    return null;
- 		}
-		
-		return botApiResponse;
+         return pusheMessage( messageReq.getUserId(), messageReq.getChannelToken(), templateMessage);
 	}
 	
 	@PostMapping(value="/post/cards", consumes = "application/json", produces = "application/json")
-	public BotApiResponse pushCardCarouselTemplate(@RequestBody MessageReq messageReq) {
+	public BotApiResponse pushCardCarouselTemplate(@RequestBody MessageReq messageReq) throws InterruptedException, ExecutionException {
 		
 		List<CustomCarouselTemplate> customCarouselTemplates = messageReq.getCards();
 		List<CarouselColumn> carouseColumns = new ArrayList<>();
@@ -149,25 +127,23 @@ public class MessageServiceController {
 		}
 
         CarouselTemplate carouselTemplate = new CarouselTemplate(carouseColumns);
-        
-        TemplateMessage templateMessage = new TemplateMessage("Button alt text", carouselTemplate);
-        final PushMessage pushMessage = new PushMessage(
-       		 messageReq.getUserId(),
-       	        templateMessage);
-        final LineMessagingClient client = LineMessagingClient
-		        .builder(messageReq.getChannelToken())
-		        .build();
-        final BotApiResponse botApiResponse;
-        try {
-		    botApiResponse = client.pushMessage(pushMessage).get();
-		} catch (Exception e) {
-		    e.printStackTrace();
-		    return null;
-		}
-		
-		return botApiResponse;
+        TemplateMessage templateMessage = new TemplateMessage("Template alt text", carouselTemplate);
+        return pusheMessage( messageReq.getUserId(), messageReq.getChannelToken(), templateMessage);
     }
 	
+	private BotApiResponse pusheMessage(String userId, String channelToken, Message message) throws InterruptedException, ExecutionException {
+		
+        final PushMessage pushMessage = new PushMessage(
+        		userId,
+        		message);
+        final LineMessagingClient client = LineMessagingClient
+		        .builder(channelToken)
+		        .build();
+        final BotApiResponse botApiResponse = client.pushMessage(pushMessage).get();
+		
+		return botApiResponse;
+	}
+
 	private List<Action> getTemplateAction(List<ActionTemplate> actionsTemplate) {
 		List<Action> actions = new ArrayList<Action>();
 		for (ActionTemplate item : actionsTemplate) {
@@ -180,12 +156,18 @@ public class MessageServiceController {
 		}
 		return actions;
 	}
+	
+	@PostMapping(value="/post/images", consumes = "application/json", produces = "application/json")
+	public BotApiResponse pushImageMap(@RequestBody MessageReq messageReq) throws InterruptedException, ExecutionException {
 
-	private static URI createUri(String path) {
-        return ServletUriComponentsBuilder.fromCurrentContextPath()
-                                          .scheme("https")
-                                          .path(path).build()
-                                          .toUri();
-    }
+        ImageCarouselTemplate imageCarouselTemplate = new ImageCarouselTemplate(
+        		messageReq.getImages());
+        TemplateMessage templateMessage = new TemplateMessage(messageReq.getTitle(),
+                                                              imageCarouselTemplate);
+                        
+                        
+        return pusheMessage( messageReq.getUserId(), messageReq.getChannelToken(), templateMessage);
+	}
+
 	
 }
