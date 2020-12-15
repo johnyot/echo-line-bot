@@ -2,6 +2,7 @@ package com.ter.linebot.model;
 
 import java.util.List;
 
+import com.linecorp.bot.model.message.template.CarouselColumn;
 import com.linecorp.bot.model.message.template.ImageCarouselColumn;
 
 public class MessageReq {
@@ -15,6 +16,7 @@ public class MessageReq {
 	private List<ActionTemplate> actions;
 	List<CustomCarouselTemplate> cards;
 	List<ImageCarouselColumn> images;
+	List<CarouselColumn> carousels;
 
 	public String getUserId() {
 		return userId;
@@ -94,6 +96,14 @@ public class MessageReq {
 
 	public void setTitle(String title) {
 		this.title = title;
+	}
+
+	public List<CarouselColumn> getCarousels() {
+		return carousels;
+	}
+
+	public void setCarousels(List<CarouselColumn> carousels) {
+		this.carousels = carousels;
 	}
 
 	
