@@ -2,6 +2,8 @@ package com.ter.linebot.model;
 
 import java.util.List;
 
+import com.linecorp.bot.model.message.flex.container.Bubble;
+import com.linecorp.bot.model.message.flex.container.Carousel;
 import com.linecorp.bot.model.message.template.CarouselColumn;
 import com.linecorp.bot.model.message.template.ImageCarouselColumn;
 
@@ -17,6 +19,9 @@ public class MessageReq {
 	List<CustomCarouselTemplate> cards;
 	List<ImageCarouselColumn> images;
 	List<CarouselColumn> carousels;
+	private String altTextFlex;
+	private List<Bubble> flexBubles;
+	private Bubble flexBubble;
 
 	public String getUserId() {
 		return userId;
@@ -104,6 +109,31 @@ public class MessageReq {
 
 	public void setCarousels(List<CarouselColumn> carousels) {
 		this.carousels = carousels;
+	}
+
+	public String getAltTextFlex() {
+		return altTextFlex;
+	}
+
+	public void setAltTextFlex(String altTextFlex) {
+		this.altTextFlex = altTextFlex;
+	}
+
+
+	public List<Bubble> getFlexBubles() {
+		return flexBubles;
+	}
+
+	public void setFlexBubles(List<Bubble> flexBubles) {
+		this.flexBubles = flexBubles;
+	}
+
+	public Bubble getFlexBubble() {
+		return flexBubble;
+	}
+
+	public void setFlexBubble(Bubble flexBubble) {
+		this.flexBubble = flexBubble;
 	}
 
 	

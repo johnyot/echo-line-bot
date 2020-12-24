@@ -1,5 +1,6 @@
 package com.ter.linebot.controller;
 
+import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import java.net.URI;
 import java.util.ArrayList;
@@ -23,11 +24,14 @@ import com.linecorp.bot.model.action.Action;
 import com.linecorp.bot.model.action.MessageAction;
 import com.linecorp.bot.model.action.PostbackAction;
 import com.linecorp.bot.model.action.URIAction;
+import com.linecorp.bot.model.message.FlexMessage;
 import com.linecorp.bot.model.message.ImagemapMessage;
 import com.linecorp.bot.model.message.Message;
 import com.linecorp.bot.model.message.TemplateMessage;
 import com.linecorp.bot.model.message.TextMessage;
 import com.linecorp.bot.model.message.VideoMessage;
+import com.linecorp.bot.model.message.flex.container.Bubble;
+import com.linecorp.bot.model.message.flex.container.Carousel;
 import com.linecorp.bot.model.message.imagemap.ImagemapArea;
 import com.linecorp.bot.model.message.imagemap.ImagemapBaseSize;
 import com.linecorp.bot.model.message.imagemap.ImagemapExternalLink;
@@ -154,6 +158,23 @@ public class MessageServiceController {
 		CarouselTemplate carouselTemplate = new CarouselTemplate(carouseColumns);
 		TemplateMessage templateMessage = new TemplateMessage("Template alt text", carouselTemplate);
 		return pusheMessage(messageReq.getUserId(), messageReq.getChannelToken(), templateMessage);
+	}
+	
+	@PostMapping(value = "/post/flex/buble", consumes = "application/json", produces = "application/json")
+	public BotApiResponse pushFlexBubleMessage(@RequestBody MessageReq messageReq)
+			throws InterruptedException, ExecutionException {
+		FlexMessage flexMessage = new FlexMessage(messageReq.getAltTextFlex(), messageReq.getFlexBubble());
+		return pusheMessage(messageReq.getUserId(), messageReq.getChannelToken(), flexMessage);
+	}
+	
+	@PostMapping(value = "/post/flex/bubles", consumes = "application/json", produces = "application/json")
+	public BotApiResponse pushFlexCarouselBubleMessage(@RequestBody MessageReq messageReq)
+			throws InterruptedException, ExecutionException {
+		List<Bubble> bubbles = messageReq.getFlexBubles();
+		final Carousel carousel = Carousel.builder()
+	                .contents(bubbles).build();
+		FlexMessage flexMessage = new FlexMessage(messageReq.getAltTextFlex(), carousel);
+		return pusheMessage(messageReq.getUserId(), messageReq.getChannelToken(), flexMessage);
 	}
 
 	private BotApiResponse pusheMessage(String userId, String channelToken, Message message)
